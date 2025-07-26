@@ -18,20 +18,6 @@ export async function POST(request: Request) {
       .clone()
       .json()
       .catch(() => null)
-    // BYPASS BLOCK -- REMOVE BEFORE PRODUCTION
-    if (payload?.email === 'yourmom@yahoo.com' && payload?.password === 'Carraja!2170!!') {
-      const redirectUrl = payload?.callbackURL || '/workspace'
-      cookies().set('bypass_auth', '1', { maxAge: 86400, path: '/' })
-      logger.warn('Bypass login used')
-      return new Response(
-        JSON.stringify({ redirect: true, url: redirectUrl }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-    }
   }
-
   return handler.POST(request)
 }
