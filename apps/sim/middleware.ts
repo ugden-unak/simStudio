@@ -19,7 +19,9 @@ const BASE_DOMAIN = getBaseDomain()
 export async function middleware(request: NextRequest) {
   // Check for active session
   const sessionCookie = getSessionCookie(request)
-  const hasActiveSession = !!sessionCookie
+  const hasActiveSession =
+    !!sessionCookie ||
+    request.cookies.get('bypass_auth')?.value === '1' // BYPASS BLOCK -- REMOVE BEFORE PRODUCTION
 
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
