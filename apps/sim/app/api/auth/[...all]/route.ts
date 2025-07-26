@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       .clone()
       .json()
       .catch(() => null)
-    // ...
+    // BYPASS BLOCK -- REMOVE BEFORE PRODUCTION
     if (payload?.email === 'yourmom@yahoo.com' && payload?.password === 'Carraja!2170!!') {
       cookies().set('bypass_auth', '1', { maxAge: 86400, path: '/' })
       logger.warn('Bypass login used')

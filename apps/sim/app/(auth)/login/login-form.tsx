@@ -284,6 +284,11 @@ export default function LoginPage({
         return
       }
 
+      if (result.data?.redirect && result.data?.url) {
+        router.push(result.data.url)
+        return
+      }
+
       // Mark that the user has previously logged in
       if (typeof window !== 'undefined') {
         localStorage.setItem('has_logged_in_before', 'true')
