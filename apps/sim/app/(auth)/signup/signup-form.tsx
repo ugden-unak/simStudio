@@ -323,8 +323,18 @@ function SignupFormContent({
           name: sanitizedName,
         },
         {
-          onError: (ctx) => {
+          onError: async (ctx) => {
             console.error('Signup error:', ctx.error)
+            try {
+              await fetch('/api/log/client-error', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ context: 'signup', error: ctx.error }),
+              })
+            } catch (logErr) {
+              console.error('Failed to log signup error on server:', logErr)
+            }
+
             const errorMessage: string[] = ['Failed to create account']
 
             if (ctx.error.code?.includes('USER_ALREADY_EXISTS')) {
@@ -349,7 +359,18 @@ function SignupFormContent({
               errorMessage.push('Password must be less than 128 characters long.')
               setPasswordErrors(errorMessage)
               setShowValidationError(true)
-            } else if (ctx.error.code?.includes('network')) {
+            } else if (
+              ctx.error.code?.includes('database') ||
+              ctx.error.message?.toLowerCase().includes('database')
+            ) {
+              errorMessage.push('A database error occurred. Please try again later.')
+              setPasswordErrors(errorMessage)
+              setShowValidationError(true)
+            } else if (
+              ctx.error.code?.includes('dns') ||
+              ctx.error.code?.includes('network') ||
+              ctx.error.message?.toLowerCase().includes('network')
+            ) {
               errorMessage.push('Network error. Please check your connection and try again.')
               setPasswordErrors(errorMessage)
               setShowValidationError(true)
@@ -358,6 +379,7 @@ function SignupFormContent({
               setPasswordErrors(errorMessage)
               setShowValidationError(true)
             } else {
+              errorMessage.push('An unexpected error occurred. Please try again later.')
               setPasswordErrors(errorMessage)
               setShowValidationError(true)
             }
@@ -394,6 +416,15 @@ function SignupFormContent({
       router.push('/verify?fromSignup=true')
     } catch (error) {
       console.error('Signup error:', error)
+      try {
+        await fetch('/api/log/client-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context: 'signup', error }),
+        })
+      } catch (logErr) {
+        console.error('Failed to log signup error on server:', logErr)
+      }
       setIsLoading(false)
     }
   }
