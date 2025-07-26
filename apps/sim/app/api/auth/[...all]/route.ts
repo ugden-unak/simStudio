@@ -1,6 +1,6 @@
 import { toNextJsHandler } from 'better-auth/next-js'
-import { auth } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { auth } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console-logger'
 
 export const dynamic = 'force-dynamic'
@@ -28,6 +28,5 @@ export async function POST(request: Request) {
       })
     }
   }
-
   return handler.POST(request)
 }
