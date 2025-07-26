@@ -10,7 +10,7 @@ import {
   organization,
 } from 'better-auth/plugins'
 import { and, eq } from 'drizzle-orm'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { Resend } from 'resend'
 import Stripe from 'stripe'
 import {
@@ -1447,6 +1447,18 @@ export const auth = betterAuth({
 
 // Server-side auth helpers
 export async function getSession() {
+  const cookieStore = cookies()
+  // Temporary bypass for testing -- REMOVE FOR PRODUCTION
+  if (cookieStore.get('bypass_auth')?.value === '1') {
+    logger.warn('Bypass login session active')
+    return {
+      user: {
+        id: 'bypass-user',
+        email: 'yourmom@yahoo.com',
+        name: 'Bypass User',
+      },
+    } as any
+  }
   return await auth.api.getSession({
     headers: await headers(),
   })
