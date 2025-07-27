@@ -9,7 +9,6 @@ import { createLogger } from '@/lib/logs/console-logger'
 import { cn } from '@/lib/utils'
 import { useOrganizationStore } from '@/stores/organization'
 import { useGeneralStore } from '@/stores/settings/general/store'
-import { Account } from './components/account/account'
 import { ApiKeys } from './components/api-keys/api-keys'
 import { Credentials } from './components/credentials/credentials'
 import { EnvironmentVariables } from './components/environment/environment'
@@ -29,7 +28,6 @@ interface SettingsModalProps {
 type SettingsSection =
   | 'general'
   | 'environment'
-  | 'account'
   | 'credentials'
   | 'apikeys'
   | 'subscription'
@@ -118,9 +116,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </div>
             <div className={cn('h-full', activeSection === 'environment' ? 'block' : 'hidden')}>
               <EnvironmentVariables onOpenChange={onOpenChange} />
-            </div>
-            <div className={cn('h-full', activeSection === 'account' ? 'block' : 'hidden')}>
-              <Account onOpenChange={onOpenChange} />
             </div>
             <div className={cn('h-full', activeSection === 'credentials' ? 'block' : 'hidden')}>
               <Credentials onOpenChange={onOpenChange} />

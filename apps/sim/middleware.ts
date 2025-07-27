@@ -1,4 +1,3 @@
-import { getSessionCookie } from 'better-auth/cookies'
 import { type NextRequest, NextResponse } from 'next/server'
 import { isDev } from './lib/environment'
 import { createLogger } from './lib/logs/console-logger'
@@ -17,9 +16,6 @@ const SUSPICIOUS_UA_PATTERNS = [
 const BASE_DOMAIN = getBaseDomain()
 
 export async function middleware(request: NextRequest) {
-  // Check for active session
-  const sessionCookie = getSessionCookie(request)
-  const hasActiveSession = !!sessionCookie
 
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
@@ -87,44 +83,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/workspace', request.url))
   }
 
-  // Handle protected routes that require authentication
+  // Handle workspace routes
   if (url.pathname.startsWith('/workspace')) {
-    if (!hasActiveSession) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
     return NextResponse.next()
   }
 
-  // Allow access to invitation links
-  if (request.nextUrl.pathname.startsWith('/invite/')) {
-    if (
-      !hasActiveSession &&
-      !request.nextUrl.pathname.endsWith('/login') &&
-      !request.nextUrl.pathname.endsWith('/signup') &&
-      !request.nextUrl.search.includes('callbackUrl')
-    ) {
-      const token = request.nextUrl.searchParams.get('token')
-      const inviteId = request.nextUrl.pathname.split('/').pop()
-      const callbackParam = encodeURIComponent(
-        `/invite/${inviteId}${token ? `?token=${token}` : ''}`
-      )
-      return NextResponse.redirect(
-        new URL(`/login?callbackUrl=${callbackParam}&invite_flow=true`, request.url)
-      )
-    }
-    return NextResponse.next()
-  }
-
-  // Allow access to workspace invitation API endpoint
-  if (request.nextUrl.pathname.startsWith('/api/workspaces/invitations')) {
-    if (request.nextUrl.pathname.includes('/accept') && !hasActiveSession) {
-      const token = request.nextUrl.searchParams.get('token')
-      if (token) {
-        return NextResponse.redirect(new URL(`/invite/${token}?token=${token}`, request.url))
-      }
-    }
-    return NextResponse.next()
-  }
 
   const userAgent = request.headers.get('user-agent') || ''
 
@@ -162,15 +125,12 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-// Update matcher to include invitation routes
+// Update matcher for workspace routing
 export const config = {
   matcher: [
     '/w', // Legacy /w redirect
     '/w/:path*', // Legacy /w/* redirects
     '/workspace/:path*', // New workspace routes
-    '/login',
-    '/signup',
-    '/invite/:path*', // Match invitation routes
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }

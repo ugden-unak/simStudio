@@ -1,3 +1,6 @@
-import Landing from './(landing)/landing'
+import { redirect } from 'next/navigation'
 
-export default Landing
+export default function Page() {
+  redirect('/workspace')
+  return null
+}

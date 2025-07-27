@@ -18,7 +18,6 @@ interface SettingsNavigationProps {
     section:
       | 'general'
       | 'environment'
-      | 'account'
       | 'credentials'
       | 'apikeys'
       | 'subscription'
@@ -32,7 +31,6 @@ type NavigationItem = {
   id:
     | 'general'
     | 'environment'
-    | 'account'
     | 'credentials'
     | 'apikeys'
     | 'subscription'
@@ -54,11 +52,6 @@ const allNavigationItems: NavigationItem[] = [
     id: 'environment',
     label: 'Environment',
     icon: KeyRound,
-  },
-  {
-    id: 'account',
-    label: 'Account',
-    icon: UserCircle,
   },
   {
     id: 'credentials',

@@ -3,28 +3,15 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { LoadingAgent } from '@/components/ui/loading-agent'
-import { useSession } from '@/lib/auth-client'
 import { createLogger } from '@/lib/logs/console-logger'
 
 const logger = createLogger('WorkspacePage')
 
 export default function WorkspacePage() {
   const router = useRouter()
-  const { data: session, isPending } = useSession()
 
   useEffect(() => {
     const redirectToFirstWorkspace = async () => {
-      // Wait for session to load
-      if (isPending) {
-        return
-      }
-
-      // If user is not authenticated, redirect to login
-      if (!session?.user) {
-        logger.info('User not authenticated, redirecting to login')
-        router.replace('/login')
-        return
-      }
 
       try {
         // Check if we need to redirect a specific workflow from old URL format
@@ -90,9 +77,6 @@ export default function WorkspacePage() {
             logger.error('Error creating default workspace:', createError)
           }
 
-          // If we can't create a workspace, redirect to login to reset state
-          router.replace('/login')
-          return
         }
 
         // Get the first workspace (they should be ordered by most recent)
@@ -112,23 +96,15 @@ export default function WorkspacePage() {
     if (typeof window !== 'undefined' && window.location.pathname === '/workspace') {
       redirectToFirstWorkspace()
     }
-  }, [session, isPending, router])
+  }, [router])
 
-  // Show loading state while we determine where to redirect
-  if (isPending) {
-    return (
-      <div className='flex h-screen w-full items-center justify-center'>
-        <div className='flex flex-col items-center justify-center text-center align-middle'>
-          <LoadingAgent size='lg' />
-        </div>
+  return (
+    <div className='flex h-screen w-full items-center justify-center'>
+      <div className='flex flex-col items-center justify-center text-center align-middle'>
+        <LoadingAgent size='lg' />
       </div>
-    )
-  }
-
-  // If user is not authenticated, show nothing (redirect will happen)
-  if (!session?.user) {
-    return null
-  }
+    </div>
+  )
 
   return null
 }
